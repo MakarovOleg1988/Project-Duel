@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 namespace NetGame
 {
@@ -11,7 +12,7 @@ namespace NetGame
             PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2 });
         }
 
-        public void JoinRoom_UnityEditor()
+        public void OnJoinRoom_UnityEditor()
         {
             PhotonNetwork.JoinRandomRoom();
         }
@@ -47,5 +48,13 @@ namespace NetGame
         {
             PhotonNetwork.LoadLevel("NetGameScene");
         }
+
+        public override void OnLeftRoom()
+        {
+            SceneManager.LoadScene(0);
+        }
+
     }
+
+
 }

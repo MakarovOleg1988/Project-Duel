@@ -1,34 +1,40 @@
+using Photon.Pun;
 using System.Collections;
 using UnityEngine;
 
 namespace NetGame
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, IPunObservable
     {
         private NewControls _controls;
 
-        [SerializeField] private Rigidbody _rb;
         [SerializeField] private Transform _target;
         [SerializeField] private GameObject _bulletPrefab;
         [SerializeField] private Transform _firePoint;
+        [SerializeField] private PhotonView _photonView;
         private Transform _pool;
 
         [Space, SerializeField, Range(1f, 20f)] private float _speedPlayer;
-        [SerializeField, Range(1f, 5f)] public int _healthPlayer;
+        [SerializeField, Range(1f, 5f)] public float _healthPlayer;
 
         [Space, SerializeField, Range(0.1f, 5f)] private float _attackDelay;
         [SerializeField, Range(0f, 5f)] private float _rotateDelay;
 
-        public bool _turnPlayer1;
-
         void Start()
         {
             _controls = new NewControls();
-            if (_turnPlayer1 == true) _controls.Player1.Enable();
-            else _controls.Player2.Enable();
-
-            _rb = GetComponent<Rigidbody>();
             _pool = FindObjectOfType<Pool>().transform;
+
+            FindObjectOfType<GameManager>().AddPLayer(this);
+        }
+
+        public void SetTarget(Transform target)
+        {
+            _target = target;
+
+            if (!_photonView.IsMine) return;
+
+            _controls.Player1.Enable();
 
             StartCoroutine(Fire());
             StartCoroutine(Focus());
@@ -60,16 +66,15 @@ namespace NetGame
             }
         }
 
-        void Update()
+        void FixedUpdate()
         {
             MovePlayer();
         }
 
         private void MovePlayer()
         {
-            var direction = _turnPlayer1
-                  ? _controls.Player1.Movement.ReadValue<Vector2>()
-                  : _controls.Player2.Movement2.ReadValue<Vector2>();
+            if (!_photonView.IsMine) return;
+            var direction = _controls.Player1.Movement.ReadValue<Vector2>();
 
             if (direction.x == 0 && direction.y == 0) return;
 
@@ -88,6 +93,18 @@ namespace NetGame
             {
                 Destroy(gameObject);
                 Debug.Log("LOSE");
+            }
+        }
+
+        public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+        {
+            if (stream.IsWriting)
+            {
+                stream.SendNext(PlayerData.Create(this));
+            }
+            else
+            {
+                ((PlayerData)stream.ReceiveNext()).Set(this);
             }
         }
 
