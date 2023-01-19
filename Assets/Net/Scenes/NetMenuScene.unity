@@ -823,7 +823,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2074408649}
         m_TargetAssemblyTypeName: NetGame.MenuManager, Assembly-CSharp
-        m_MethodName: JoinRoom_UnityEditor
+        m_MethodName: OnJoinRoom_UnityEditor
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
