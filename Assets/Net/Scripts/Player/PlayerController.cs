@@ -1,11 +1,14 @@
 using Photon.Pun;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace NetGame
 {
     public class PlayerController : MonoBehaviour, IPunObservable
     {
+        public static PlayerController instance { get; private set; }
         private NewControls _controls;
 
         [SerializeField] private Transform _target;
@@ -16,28 +19,42 @@ namespace NetGame
 
         [Space, SerializeField, Range(1f, 20f)] private float _speedPlayer;
         [SerializeField, Range(1f, 5f)] public float _healthPlayer;
+        
+        public float HealthPlayer
+        {
+            get { return _healthPlayer; }
+            set { _healthPlayer = value; }
+        }
 
         [Space, SerializeField, Range(0.1f, 5f)] private float _attackDelay;
         [SerializeField, Range(0f, 5f)] private float _rotateDelay;
 
-        void Start()
+        private void Awake()
+        {
+            instance = this;
+        }
+        private void Start()
         {
             _controls = new NewControls();
             _pool = FindObjectOfType<Pool>().transform;
+            FindObjectOfType<GameManager>().AddPLayer(this);  
+        }
 
-            FindObjectOfType<GameManager>().AddPLayer(this);
+        void FixedUpdate()
+        {
+            MovePlayer();
         }
 
         public void SetTarget(Transform target)
         {
             _target = target;
 
+            StartCoroutine(Fire());
+            StartCoroutine(Focus());
+
             if (!_photonView.IsMine) return;
 
             _controls.Player1.Enable();
-
-            StartCoroutine(Fire());
-            StartCoroutine(Focus());
         }
 
         private IEnumerator Fire()
@@ -50,12 +67,6 @@ namespace NetGame
             }
         }
 
-        void SetParentBullet(GameObject bullet)
-        {
-            bullet.transform.parent = _pool.transform;
-            bullet.name = ("Bullet");
-        }
-
         private IEnumerator Focus()
         {
             while (true)
@@ -66,9 +77,10 @@ namespace NetGame
             }
         }
 
-        void FixedUpdate()
+        void SetParentBullet(GameObject bullet)
         {
-            MovePlayer();
+            bullet.transform.parent = _pool.transform;
+            bullet.name = ("Bullet");
         }
 
         private void MovePlayer()
@@ -85,14 +97,15 @@ namespace NetGame
         private void OnTriggerEnter(Collider other)
         {
             var bullet = other.GetComponent<ProjectileController>();
-           
+
             if (bullet == null) return;
             _healthPlayer -= bullet.GetDamage;
 
             if (_healthPlayer <= 0)
             {
-                Destroy(gameObject);
-                Debug.Log("LOSE");
+                _controls.Player1.Disable();
+                _controls.Player2.Disable();
+                Destroy(this.gameObject);
             }
         }
 

@@ -23,7 +23,7 @@ namespace NetGame
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.GetComponent<PlayerController>() == null) return;
+            if (other.GetComponent < PlayerController>() == null) return;
                 Destroy(gameObject);
         }
 

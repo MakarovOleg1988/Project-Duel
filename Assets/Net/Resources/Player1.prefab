@@ -234,7 +234,7 @@ MonoBehaviour:
   _speedPlayer: 2
   _healthPlayer: 5
   _attackDelay: 2
-  _rotateDelay: 0.25
+  _rotateDelay: 0.1
 --- !u!114 &4251947055613152449
 MonoBehaviour:
   m_ObjectHideFlags: 0

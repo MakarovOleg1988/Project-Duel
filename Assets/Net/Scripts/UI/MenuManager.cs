@@ -1,12 +1,13 @@
 using UnityEngine;
 using Photon.Pun;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using System.Collections;
 
 namespace NetGame
 {
     public class MenuManager : MonoBehaviourPunCallbacks
     {
-
         public void CreateRoom_UnityEditor()
         {
             PhotonNetwork.CreateRoom(null, new Photon.Realtime.RoomOptions { MaxPlayers = 2 });

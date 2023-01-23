@@ -10,6 +10,7 @@ namespace NetGame
     {
         private PlayerController _player1;
         private PlayerController _player2;
+        private Camera _camera;
 
         [SerializeField] private string _prefabPlayersnames;
         [SerializeField] private InputAction _quit;
@@ -20,9 +21,12 @@ namespace NetGame
         {
             _quit.Enable();
             _quit.performed += onQuit;
+            _camera = Camera.main;
 
             var positionPlayer = new Vector3(Random.Range(-_randomInterval, _randomInterval), 1f, Random.Range(-_randomInterval, _randomInterval));
             var GO = PhotonNetwork.Instantiate(_prefabPlayersnames + PhotonNetwork.NickName, positionPlayer, new Quaternion());
+            _camera.transform.parent = GO.transform;
+            _camera.transform.localPosition = new Vector3(0f, 2f, -2f);
 
             PhotonPeer.RegisterType(typeof(PlayerData), 100, Debugger.SerializePlayerData, Debugger.DeserializePLayerData);
         }
